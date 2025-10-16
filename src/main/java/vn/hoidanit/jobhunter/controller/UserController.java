@@ -1,64 +1,66 @@
 package vn.hoidanit.jobhunter.controller;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.service.UserService;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
-
-
+import vn.hoidanit.jobhunter.util.error.InvalidException;
 
 
 @RestController
 public class UserController {
 
     private final UserService userService ; 
+    private final PasswordEncoder passwordEncoder ; 
     
-    public UserController(UserService userService) {
+    public UserController(UserService userService , PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder ;
     }
 
-    @PostMapping("/user")
-    public User createNewUser(@RequestBody User postManUser) {
+    @PostMapping("/users")
+    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
 
+        String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ; 
+        postManUser.setPassword(hashPassWord);
         User user = this.userService.saveUser(postManUser);
-        return user ;
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable("id") long id) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) throws InvalidException{
+        if ( id >= 1500 ) {
+            throw new InvalidException("Id không hợp lệ") ;
+        }
         this.userService.deleteUser(id);
-        return "deleteUser" ;
-    }
+        return ResponseEntity.status(HttpStatus.OK).body("Phuoc") ;
+    } 
 
-    @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable("id") long id) {
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
         User user = this.userService.getUserById(id) ;
-        return user;
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @GetMapping("/user")
-    public List<User> getAllUser() {
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUser() {
         List<User> allUser = this.userService.getAllUser();
-        return allUser;
-    }
-    @GetMapping("/a")
-    public String getMethodName() {
-        return "Hello world";
+        return ResponseEntity.status(HttpStatus.OK).body(allUser);
     }
 
-    @PutMapping("/user")
-    public User updateUser( @RequestBody User postManUser) {
+    @PutMapping("/users")
+    public ResponseEntity<User> updateUser( @RequestBody User postManUser) {
         User updateUser = this.userService.getUserById(postManUser.getId()) ; 
         if ( updateUser!= null) {
             updateUser.setName(postManUser.getName());
@@ -67,7 +69,7 @@ public class UserController {
             this.userService.saveUser(updateUser) ;
         }
         
-        return updateUser;
+        return ResponseEntity.status(HttpStatus.OK).body(updateUser);
     }
     
 }
