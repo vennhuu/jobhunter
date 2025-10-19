@@ -4,50 +4,41 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
-import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
 @Entity
-@Table(name="users")
-@Getter
-@Setter
-public class User {
+@Table(name="companies")
+public class Company {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private long id ;
 
-    private String name ;
-    private String email ; 
-    private String password ;
-    private int age ; 
-
-    @Enumerated(EnumType.STRING)
-    private GenderEnum gender ;
+    @NotBlank(message="name không được để trống")
+    private String name ; 
     
-    private String address ; 
-    private String refreshToken ;
+    @Column(columnDefinition= "MEDIUMTEXT")
+    private String description ; 
+
+    private String address ;
+    private String logo ;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant createdAt ;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant updateAt ;
-
     private String createdBy ;
     private String updateBy ;
-
 
     public long getId() {
         return id;
@@ -65,36 +56,12 @@ public class User {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getDescription() {
+        return description;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public GenderEnum getGender() {
-        return gender;
-    }
-
-    public void setGender(GenderEnum gender) {
-        this.gender = gender;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getAddress() {
@@ -105,12 +72,12 @@ public class User {
         this.address = address;
     }
 
-    public String getRefreshToken() {
-        return refreshToken;
+    public String getLogo() {
+        return logo;
     }
 
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
     public Instant getCreatedAt() {
@@ -156,4 +123,5 @@ public class User {
         this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
         this.updateAt = Instant.now() ;
     }
+    
 }
