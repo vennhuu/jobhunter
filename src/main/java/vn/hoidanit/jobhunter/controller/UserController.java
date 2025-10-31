@@ -1,9 +1,6 @@
 package vn.hoidanit.jobhunter.controller;
 
-import java.util.List;
-import java.util.Optional;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -16,13 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import jakarta.validation.Valid;
 import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.FetchUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
@@ -41,27 +41,40 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
+    @APIMessage("Create a new user")
+    public ResponseEntity<CreateUserDTO> createNewUser(@Valid @RequestBody User postManUser) throws InvalidException {
 
+        boolean existEmail = this.userService.existByEmail(postManUser.getEmail()) ;
+        if ( existEmail ) {
+            throw new InvalidException("Email " + postManUser.getEmail() + " đã tồn tại") ;
+        }
         String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ; 
         postManUser.setPassword(hashPassWord);
         User user = this.userService.saveUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        CreateUserDTO createUserDTO = this.userService.handleCreateUserDTO(user) ;
+        return ResponseEntity.status(HttpStatus.CREATED).body(createUserDTO);
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) throws InvalidException{
-        if ( id >= 1500 ) {
-            throw new InvalidException("Id không hợp lệ") ;
+    @APIMessage("Delete a user")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws InvalidException{
+        if ( !this.userService.existsId(id) ) {
+            throw new InvalidException("Id không tồn tại") ;
         }
         this.userService.deleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Phuoc") ;
+        return ResponseEntity.status(HttpStatus.OK).body(null) ;
     } 
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
+    @APIMessage("fetch user with ID")
+    public ResponseEntity<FetchUserDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
+        
         User user = this.userService.getUserById(id) ;
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        if ( user == null ) {
+            throw new InvalidException("Không tồn tại người dùng này") ;
+        }
+        FetchUserDTO fetchUserByIdDTO = this.userService.fetchUserByIdDTO(user) ;
+        return ResponseEntity.status(HttpStatus.OK).body(fetchUserByIdDTO);
     }
 
     @GetMapping("/users")
@@ -75,16 +88,22 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser( @RequestBody User postManUser) {
+    @APIMessage("Update a user")
+    public ResponseEntity<UpdateUserDTO> updateUser( @RequestBody User postManUser) throws InvalidException {
         User updateUser = this.userService.getUserById(postManUser.getId()) ; 
+        if ( !this.userService.existsId(postManUser.getId())) {
+            throw new InvalidException("Id không tồn tại") ;
+        }
         if ( updateUser!= null) {
             updateUser.setName(postManUser.getName());
-            updateUser.setEmail(postManUser.getEmail());
-            updateUser.setPassword(postManUser.getPassword());
+            updateUser.setGender(postManUser.getGender());
+            updateUser.setAge(postManUser.getAge());
+            updateUser.setAddress(postManUser.getAddress());
             this.userService.saveUser(updateUser) ;
         }
+        UpdateUserDTO updateUserDTO = this.userService.handleUpdateUserDTO(updateUser) ;
         
-        return ResponseEntity.status(HttpStatus.OK).body(updateUser);
+        return ResponseEntity.status(HttpStatus.OK).body(updateUserDTO);
     }
     
 }
