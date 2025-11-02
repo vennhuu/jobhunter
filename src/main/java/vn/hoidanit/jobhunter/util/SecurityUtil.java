@@ -81,7 +81,7 @@ public class SecurityUtil {
             .issuedAt(now) //
             .expiresAt(validity) // thời gian hết hạn
             .subject(email) // định danh người dùng
-            .claim("venn", dto.getUserLogin()) // 
+            .claim("venn", dto.getUser()) // 
             .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,claims)).getTokenValue();

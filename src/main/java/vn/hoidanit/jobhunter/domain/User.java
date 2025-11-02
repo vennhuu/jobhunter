@@ -42,15 +42,28 @@ public class User {
     @Column(columnDefinition= "MEDIUMTEXT")
     private String refreshToken ;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant createdAt ;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
-    private Instant updateAt ;
+    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
+    private Instant updatedAt ;
 
     private String createdBy ;
     private String updateBy ;
 
+    
+
+    @PrePersist
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
+        this.createdAt = Instant.now() ;
+    }
+
+    @PreUpdate
+    public void handleUpdateCompany() {
+        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
+        this.updatedAt = Instant.now() ;
+    }
 
     public long getId() {
         return id;
@@ -124,12 +137,12 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdateAt() {
-        return updateAt;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateAt(Instant updateAt) {
-        this.updateAt = updateAt;
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public String getCreatedBy() {
@@ -146,17 +159,5 @@ public class User {
 
     public void setUpdateBy(String updateBy) {
         this.updateBy = updateBy;
-    }
-
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
-        this.createdAt = Instant.now() ;
-    }
-
-    @PreUpdate
-    public void handleUpdateCompany() {
-        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
-        this.updateAt = Instant.now() ;
     }
 }

@@ -2,9 +2,9 @@ package vn.hoidanit.jobhunter.domain.dto;
 
 
 public class ResLoginDTO {
-    public static UserLogin UserLogin;
-    private String accessToken ;
-    private UserLogin userLogin ;
+
+    private String access_token ;
+    private UserLogin user ;
     
     public static class UserLogin {
         private long id ;
@@ -46,22 +46,41 @@ public class ResLoginDTO {
 
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getAccess_token() {
+        return access_token;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setAccess_token(String access_token) {
+        this.access_token = access_token;
     }
 
-    public UserLogin getUserLogin() {
-        return userLogin;
+    public UserLogin getUser() {
+        return user;
     }
 
-    public void setUserLogin(UserLogin userLogin) {
-        this.userLogin = userLogin;
+    public void setUser(UserLogin user) {
+        this.user = user;
     }
 
-    
+    public static class UserGetAccount{
+        private UserLogin user ;
+
+        
+        public UserGetAccount() {
+        }
+
+        public UserGetAccount(UserLogin user) {
+            this.user = user;
+        }
+
+        public UserLogin getUser() {
+            return user;
+        }
+
+        public void setUser(UserLogin user) {
+            this.user = user;
+        }
+        
+    }
     
 }

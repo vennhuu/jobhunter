@@ -93,7 +93,7 @@ public class UserService {
         updateUserDTO.setGender(user.getGender().toString());
         updateUserDTO.setAddress(user.getAddress());
         updateUserDTO.setAge(user.getAge());
-        updateUserDTO.setUpdatedAt(user.getUpdateAt());
+        updateUserDTO.setUpdatedAt(user.getUpdatedAt());
         return updateUserDTO ;
     }
     
@@ -105,7 +105,7 @@ public class UserService {
         fetchUserByIdDTO.setGender(user.getGender().toString());
         fetchUserByIdDTO.setAddress(user.getAddress());
         fetchUserByIdDTO.setAge(user.getAge());
-        fetchUserByIdDTO.setUpdatedAt(user.getUpdateAt());
+        fetchUserByIdDTO.setUpdatedAt(user.getUpdatedAt());
         fetchUserByIdDTO.setCreatedAt(user.getCreatedAt());
         return fetchUserByIdDTO ;
     }

@@ -23,7 +23,6 @@ import vn.hoidanit.jobhunter.util.SecurityUtil;
 
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
@@ -60,11 +59,11 @@ public class AuthController {
         User user = this.userService.getUserByEmail(DTOUser.getUsername());
 
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName());
-        res.setUserLogin(userLogin);
+        res.setUser(userLogin);
 
         // create a token
-        String access_token = this.securityUtil.createAccessToken(authentication.getName(), res.getUserLogin());
-        res.setAccessToken(access_token);
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(), res.getUser());
+        res.setAccess_token(access_token);
 
         // create refresh token
         String refresh_token = this.securityUtil.createRefreshToken(DTOUser.getUsername(), res);
@@ -88,14 +87,16 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @APIMessage("fetch account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() {
         String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
 
         User user = this.userService.getUserByEmail(email);
 
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName());
+        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail() , user.getName()) ;
 
-        return ResponseEntity.ok(userLogin);
+        ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount(userLogin) ;
+
+        return ResponseEntity.ok(userGetAccount);
     }
 
     @GetMapping("/auth/refresh")
@@ -121,10 +122,10 @@ public class AuthController {
         User user = this.userService.getUserByEmail(email);
 
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getName());
-        res.setUserLogin(userLogin);
+        res.setUser(userLogin);
         // create a token
-        String access_token = this.securityUtil.createAccessToken(email, res.getUserLogin());
-        res.setAccessToken(access_token);
+        String access_token = this.securityUtil.createAccessToken(email, res.getUser());
+        res.setAccess_token(access_token);
 
         // create refresh token
         String new_refresh_token = this.securityUtil.createRefreshToken(email, res);
@@ -146,6 +147,28 @@ public class AuthController {
                 .body(res);
     }
 
-    
+    @PostMapping("/auth/logout")
+    @APIMessage("Logout User")
+    public ResponseEntity<Void> handleLogout() throws InvalidException {
+        
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+
+        if ( email.equals("")) {
+            throw new InvalidException("Access token k hợp lệ") ;
+        }
+        
+        // update user
+        this.userService.updateUserToken(null, email);
+
+        ResponseCookie deleteCookie = ResponseCookie.from("refresh_token", "")
+                .path("/")
+                .httpOnly(true)
+                .maxAge(0) // remove cookie immediately
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+                .build();
+    }
+
 
 }
