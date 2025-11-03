@@ -1,4 +1,4 @@
-package vn.hoidanit.jobhunter.domain.dto;
+package vn.hoidanit.jobhunter.domain.response;
 
 public class ResultPaginationDTO {
     private Meta meta ;
@@ -22,7 +22,7 @@ public class ResultPaginationDTO {
         private int pageSize ;
         private int pages ;
         private long total ;
-        
+
         public int getPage() {
             return page;
         }
