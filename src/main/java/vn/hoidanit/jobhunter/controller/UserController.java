@@ -20,7 +20,7 @@ import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.ResCreateUserDTO;
-import vn.hoidanit.jobhunter.domain.dto.FetchUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.service.UserService;
@@ -67,13 +67,13 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     @APIMessage("fetch user with ID")
-    public ResponseEntity<FetchUserDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws InvalidException {
         
         User user = this.userService.getUserById(id) ;
         if ( user == null ) {
             throw new InvalidException("Không tồn tại người dùng này") ;
         }
-        FetchUserDTO fetchUserByIdDTO = this.userService.fetchUserByIdDTO(user) ;
+        ResUserDTO fetchUserByIdDTO = this.userService.fetchUserByIdDTO(user) ;
         return ResponseEntity.status(HttpStatus.OK).body(fetchUserByIdDTO);
     }
 

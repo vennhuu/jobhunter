@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.ResCreateUserDTO;
-import vn.hoidanit.jobhunter.domain.dto.FetchUserDTO;
-import vn.hoidanit.jobhunter.domain.dto.Meta;
+import vn.hoidanit.jobhunter.domain.dto.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
@@ -45,7 +44,7 @@ public class UserService {
     public ResultPaginationDTO getAllUser (Specification<User> spec , Pageable pageable) {
         Page<User> pageUser = this.userRepository.findAll(spec , pageable) ;
         ResultPaginationDTO rs = new ResultPaginationDTO() ;
-        Meta mt = new Meta() ;
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta() ;
 
         mt.setPage(pageable.getPageNumber() + 1); // đg ở trang bnhiu
         mt.setPageSize(pageable.getPageSize()); // lấy tối đa bnhiu phần tử
@@ -53,7 +52,7 @@ public class UserService {
         mt.setPages(pageUser.getTotalPages()); // tổng số trang
         mt.setTotal(pageUser.getTotalElements()); // tổng số phần tử
 
-        List<FetchUserDTO> listDTO= pageUser.getContent()
+        List<ResUserDTO> listDTO= pageUser.getContent()
                                     .stream()
                                     .map(user -> this.fetchUserByIdDTO(user))
                                     .collect(Collectors.toList());
@@ -97,8 +96,8 @@ public class UserService {
         return updateUserDTO ;
     }
     
-    public FetchUserDTO fetchUserByIdDTO ( User user ) {
-        FetchUserDTO fetchUserByIdDTO = new FetchUserDTO() ; 
+    public ResUserDTO fetchUserByIdDTO ( User user ) {
+        ResUserDTO fetchUserByIdDTO = new ResUserDTO() ; 
         fetchUserByIdDTO.setId(user.getId());
         fetchUserByIdDTO.setEmail(user.getEmail());
         fetchUserByIdDTO.setName(user.getName());

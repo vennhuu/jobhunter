@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class FetchUserDTO {
+public class ResUserDTO {
     private long id ; 
     private String email ; 
     private String name ;
