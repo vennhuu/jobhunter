@@ -19,10 +19,10 @@ import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.FetchUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
@@ -42,7 +42,7 @@ public class UserController {
 
     @PostMapping("/users")
     @APIMessage("Create a new user")
-    public ResponseEntity<CreateUserDTO> createNewUser(@Valid @RequestBody User postManUser) throws InvalidException {
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User postManUser) throws InvalidException {
 
         boolean existEmail = this.userService.existByEmail(postManUser.getEmail()) ;
         if ( existEmail ) {
@@ -51,7 +51,7 @@ public class UserController {
         String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ; 
         postManUser.setPassword(hashPassWord);
         User user = this.userService.saveUser(postManUser);
-        CreateUserDTO createUserDTO = this.userService.handleCreateUserDTO(user) ;
+        ResCreateUserDTO createUserDTO = this.userService.handleCreateUserDTO(user) ;
         return ResponseEntity.status(HttpStatus.CREATED).body(createUserDTO);
     }
 
@@ -89,7 +89,7 @@ public class UserController {
 
     @PutMapping("/users")
     @APIMessage("Update a user")
-    public ResponseEntity<UpdateUserDTO> updateUser( @RequestBody User postManUser) throws InvalidException {
+    public ResponseEntity<ResUpdateUserDTO> updateUser( @RequestBody User postManUser) throws InvalidException {
         User updateUser = this.userService.getUserById(postManUser.getId()) ; 
         if ( !this.userService.existsId(postManUser.getId())) {
             throw new InvalidException("Id không tồn tại") ;
@@ -101,7 +101,7 @@ public class UserController {
             updateUser.setAddress(postManUser.getAddress());
             this.userService.saveUser(updateUser) ;
         }
-        UpdateUserDTO updateUserDTO = this.userService.handleUpdateUserDTO(updateUser) ;
+        ResUpdateUserDTO updateUserDTO = this.userService.handleUpdateUserDTO(updateUser) ;
         
         return ResponseEntity.status(HttpStatus.OK).body(updateUserDTO);
     }

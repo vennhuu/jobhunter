@@ -10,11 +10,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.CreateUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.FetchUserDTO;
 import vn.hoidanit.jobhunter.domain.dto.Meta;
 import vn.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.domain.dto.UpdateUserDTO;
+import vn.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 
 @Service
@@ -71,8 +71,8 @@ public class UserService {
         return this.userRepository.existsByEmail(email) ;
     }
 
-    public CreateUserDTO handleCreateUserDTO (User user) {
-        CreateUserDTO createUserDTO = new CreateUserDTO() ;
+    public ResCreateUserDTO handleCreateUserDTO (User user) {
+        ResCreateUserDTO createUserDTO = new ResCreateUserDTO() ;
         createUserDTO.setName(user.getName());
         createUserDTO.setEmail(user.getEmail());
         createUserDTO.setGender(user.getGender().toString());
@@ -86,8 +86,8 @@ public class UserService {
         return this.userRepository.existsById(id) ;
     }
 
-    public UpdateUserDTO handleUpdateUserDTO (User user) {
-        UpdateUserDTO updateUserDTO = new UpdateUserDTO() ;
+    public ResUpdateUserDTO handleUpdateUserDTO (User user) {
+        ResUpdateUserDTO updateUserDTO = new ResUpdateUserDTO() ;
         updateUserDTO.setId(user.getId());
         updateUserDTO.setName(user.getName());
         updateUserDTO.setGender(user.getGender().toString());

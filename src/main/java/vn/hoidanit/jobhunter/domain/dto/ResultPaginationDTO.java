@@ -16,6 +16,7 @@ public class ResultPaginationDTO {
     public void setResult(Object result) {
         this.result = result;
     }
+    
 
     
 }
