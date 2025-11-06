@@ -10,9 +10,29 @@ public class ResUpdateUserDTO {
     private String gender ;
     private String address ;
     private int age ;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant updatedAt ;
+    private CompanyUser company ; 
+
+    public static class CompanyUser {
+        private long id ;
+        private String name ;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 
     public long getId() {
         return id;
@@ -50,5 +70,12 @@ public class ResUpdateUserDTO {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public CompanyUser getCompany() {
+        return company;
+    }
+    public void setCompany(CompanyUser company) {
+        this.company = company;
+    }
+    
     
 }

@@ -1,14 +1,17 @@
 package vn.hoidanit.jobhunter.domain;
 
 import java.time.Instant;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -38,7 +41,15 @@ public class Company {
     // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant updatedAt ;
     private String createdBy ;
-    private String updateBy ;
+    private String updatedBy ;
+
+    
+    @OneToMany( mappedBy = "company" , fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<User> users;
+
+    @OneToMany( mappedBy = "company" , fetch = FetchType.LAZY)
+    List<Job> jobs;
 
     public long getId() {
         return id;
@@ -98,12 +109,12 @@ public class Company {
         this.createdBy = createdBy;
     }
 
-    public String getUpdateBy() {
-        return updateBy;
+    public String getUpdatedBy() {
+        return updatedBy;
     }
 
     public void setUpdateBy(String updateBy) {
-        this.updateBy = updateBy;
+        this.updatedBy = updateBy;
     }
 
     @PrePersist
@@ -114,7 +125,7 @@ public class Company {
 
     @PreUpdate
     public void handleUpdateCompany() {
-        this.updateBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ? SecurityUtil.getCurrentUserLogin().get() : "" ;
         this.updatedAt = Instant.now() ;
     }
 
@@ -125,5 +136,27 @@ public class Company {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public List<Job> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(List<Job> jobs) {
+        this.jobs = jobs;
+    }
+
+    
     
 }

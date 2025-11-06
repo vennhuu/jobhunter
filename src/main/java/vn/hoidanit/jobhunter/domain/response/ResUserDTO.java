@@ -2,8 +2,6 @@ package vn.hoidanit.jobhunter.domain.response;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 public class ResUserDTO {
     private long id ; 
     private String email ; 
@@ -12,11 +10,32 @@ public class ResUserDTO {
     private String address ;
     private int age;
     
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant updatedAt ;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a" , timezone = "GMT+7")
     private Instant createdAt ;
+
+    private CompanyUser company ; 
+
+    public static class CompanyUser {
+        private long id ;
+        private String name ;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 
     public long getId() {
         return id;
@@ -80,6 +99,14 @@ public class ResUserDTO {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public CompanyUser getCompany() {
+        return company;
+    }
+
+    public void setCompany(CompanyUser company) {
+        this.company = company;
     }
 
     

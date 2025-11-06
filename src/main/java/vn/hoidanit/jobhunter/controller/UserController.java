@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
+import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
+import vn.hoidanit.jobhunter.service.CompanyService;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
@@ -34,10 +36,12 @@ public class UserController {
 
     private final UserService userService ; 
     private final PasswordEncoder passwordEncoder ; 
+    private final CompanyService companyService ;
     
-    public UserController(UserService userService , PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService , PasswordEncoder passwordEncoder , CompanyService companyService  ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder ;
+        this.companyService = companyService ;
     }
 
     @PostMapping("/users")
@@ -47,6 +51,17 @@ public class UserController {
         boolean existEmail = this.userService.existByEmail(postManUser.getEmail()) ;
         if ( existEmail ) {
             throw new InvalidException("Email " + postManUser.getEmail() + " đã tồn tại") ;
+        }
+
+        if ( postManUser.getCompany() != null ) {
+            long id = postManUser.getCompany().getId() ;
+            if ( !this.companyService.existById(id) ) {
+                postManUser.setCompany(null);
+            }
+            else {
+                Company company = this.companyService.getCompanyById(id);
+                postManUser.setCompany(company);
+            }
         }
         String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ; 
         postManUser.setPassword(hashPassWord);
@@ -94,11 +109,24 @@ public class UserController {
         if ( !this.userService.existsId(postManUser.getId())) {
             throw new InvalidException("Id không tồn tại") ;
         }
+
+        if ( updateUser.getCompany() != null ) {
+            long id = updateUser.getCompany().getId() ;
+            if ( !this.companyService.existById(id) ) {
+                updateUser.setCompany(null);
+            }
+            else {
+                Company company = this.companyService.getCompanyById(id);
+                updateUser.setCompany(company);
+            }
+        }
+
         if ( updateUser!= null) {
             updateUser.setName(postManUser.getName());
             updateUser.setGender(postManUser.getGender());
             updateUser.setAge(postManUser.getAge());
             updateUser.setAddress(postManUser.getAddress());
+            updateUser.setCompany(postManUser.getCompany());
             this.userService.saveUser(updateUser) ;
         }
         ResUpdateUserDTO updateUserDTO = this.userService.handleUpdateUserDTO(updateUser) ;

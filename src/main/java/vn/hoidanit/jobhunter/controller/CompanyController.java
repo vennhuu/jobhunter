@@ -40,6 +40,7 @@ public class CompanyController {
     }
 
     @PostMapping("/companies")
+    @APIMessage("create a new company")
     public ResponseEntity<Company> createCompany(@Valid @RequestBody Company postManCompany) {
         Company newCompany = this.companyService.saveCompany(postManCompany) ;
         return ResponseEntity.status(HttpStatus.CREATED).body(newCompany);
@@ -55,6 +56,7 @@ public class CompanyController {
     }
 
     @PutMapping("/companies")
+    @APIMessage("update a company")
     public ResponseEntity<Company> updateCompany( @RequestBody Company postManCompany ) {
         //TODO: process PUT request
         Company updCompany = this.companyService.getCompanyById(postManCompany.getId()) ;
@@ -69,6 +71,7 @@ public class CompanyController {
     }
 
     @DeleteMapping("/companies/{id}")
+    @APIMessage("delete a company")
     public ResponseEntity<Void> deleteCompany (@PathVariable ("id") long id){
         this.companyService.deleteCompany(id);
         return ResponseEntity.ok(null) ;
