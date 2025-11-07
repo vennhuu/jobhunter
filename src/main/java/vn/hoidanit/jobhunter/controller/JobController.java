@@ -51,11 +51,12 @@ public class JobController {
     @PutMapping("/jobs")
     @APIMessage("Update a job")
     public ResponseEntity<ResUpdateJobDTO> updateJob(@RequestBody Job postManJob) throws InvalidException {
+        Job currentJob = this.jobService.findById(postManJob.getId()) ;
         if ( !this.jobService.existById(postManJob.getId()) ) {
             throw new InvalidException("Id không tồn tại") ;
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(this.jobService.handleUpdateConvertResUpdateJobDTO(postManJob)) ;
+        return ResponseEntity.status(HttpStatus.OK).body(this.jobService.handleUpdateConvertResUpdateJobDTO(postManJob , currentJob)) ;
     }
 
     @DeleteMapping("/jobs/{id}")

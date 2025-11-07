@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
+import vn.hoidanit.jobhunter.util.error.InvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -70,11 +71,22 @@ public class CompanyController {
 
     @DeleteMapping("/companies/{id}")
     @APIMessage("delete a company")
-    public ResponseEntity<Void> deleteCompany (@PathVariable ("id") long id){
+    public ResponseEntity<Void> deleteCompany (@PathVariable ("id") long id) throws InvalidException {
+        if ( !this.companyService.existById(id)) {
+            throw new InvalidException("Không có công ty này") ;
+        }
         this.companyService.deleteCompany(id);
         return ResponseEntity.ok(null) ;
     }
 
 
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<Company> getAllCompany(@PathVariable("id") long id) throws InvalidException {
+        if ( !this.companyService.existById(id)) {
+            throw new InvalidException("Không có công ty này") ;
+        }
+        return ResponseEntity.ok(this.companyService.getCompanyById(id));
+    }
+    
     
 }

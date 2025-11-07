@@ -51,6 +51,7 @@ public class Company {
     @OneToMany( mappedBy = "company" , fetch = FetchType.LAZY)
     List<Job> jobs;
 
+    
     public long getId() {
         return id;
     }
@@ -157,6 +158,5 @@ public class Company {
         this.jobs = jobs;
     }
 
-    
-    
+
 }

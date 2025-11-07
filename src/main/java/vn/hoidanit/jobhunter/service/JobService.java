@@ -15,6 +15,7 @@ import vn.hoidanit.jobhunter.domain.Skill;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.domain.response.job.ResCreateJobDTO;
 import vn.hoidanit.jobhunter.domain.response.job.ResUpdateJobDTO;
+import vn.hoidanit.jobhunter.repository.CompanyRepository;
 import vn.hoidanit.jobhunter.repository.JobRepository;
 import vn.hoidanit.jobhunter.repository.SkillRepository;
 
@@ -22,10 +23,12 @@ import vn.hoidanit.jobhunter.repository.SkillRepository;
 public class JobService {
     private final JobRepository jobRepository ;
     private final SkillRepository skillRepository ;
+    private final CompanyRepository companyRepository ;
 
-    public JobService(JobRepository jobRepository , SkillRepository skillRepository) {
+    public JobService(JobRepository jobRepository , SkillRepository skillRepository , CompanyRepository companyRepository) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository ;
+        this.companyRepository = companyRepository ;
     }
     
     public Job handleSaveJob( Job job) {
@@ -129,7 +132,7 @@ public class JobService {
         return res ;
     }
 
-    public ResUpdateJobDTO handleUpdateConvertResUpdateJobDTO( Job j ) {
+    public ResUpdateJobDTO handleUpdateConvertResUpdateJobDTO( Job j , Job jobInDB ) {
         if ( j.getSkills() != null ) {
             List<Long> reqSkill = j.getSkills()
                                     .stream()
@@ -137,24 +140,42 @@ public class JobService {
                                     .collect(Collectors.toList());
             List<Skill> dbSkill = this.skillRepository.findByIdIn(reqSkill) ;
             j.setSkills(dbSkill); 
+            jobInDB.setSkills(dbSkill) ;
         }
-        Job job = this.handleSaveJob(j) ;
+        if ( j.getCompany() != null ) {
+            Optional<Company> cOptional = this.companyRepository.findById(j.getCompany().getId()) ;
+            if ( cOptional.isPresent()) {
+                jobInDB.setCompany(cOptional.get()) ;
+            }
+        }
+        // update correct info
+        jobInDB.setName(j.getName());
+        jobInDB.setSalary(j.getSalary());
+        jobInDB.setQuantity(j.getQuantity());
+        jobInDB.setLocation(j.getLocation());
+        jobInDB.setLevel(j.getLevel());
+        jobInDB.setStartDate(j.getStartDate());
+        jobInDB.setEndDate(j.getEndDate());
+        jobInDB.setActive(j.isActive());
+
+        // update job
+        Job currentJob = this.jobRepository.save(jobInDB);
 
         ResUpdateJobDTO res = new ResUpdateJobDTO() ;
-        res.setId(job.getId());
-        res.setName(job.getName());
-        res.setLocation(job.getLocation());
-        res.setSalary(job.getSalary());
-        res.setQuantity(job.getQuantity());
-        res.setLevel(job.getLevel());
-        res.setStartDate(job.getStartDate());
-        res.setEndDate(job.getEndDate());
-        res.setId(job.getId());
-        res.setUpdatedAt(job.getUpdatedAt());
-        res.setUpdatedBy(job.getUpdatedBy());
-        res.setActive(job.isActive());
-        if( job.getSkills() != null ) {
-            List<String> listSkill = job.getSkills()
+        res.setId(currentJob.getId());
+        res.setName(currentJob.getName());
+        res.setLocation(currentJob.getLocation());
+        res.setSalary(currentJob.getSalary());
+        res.setQuantity(currentJob.getQuantity());
+        res.setLevel(currentJob.getLevel());
+        res.setStartDate(currentJob.getStartDate());
+        res.setEndDate(currentJob.getEndDate());
+        res.setId(currentJob.getId());
+        res.setUpdatedAt(currentJob.getUpdatedAt());
+        res.setUpdatedBy(currentJob.getUpdatedBy());
+        res.setActive(currentJob.isActive());
+        if( currentJob.getSkills() != null ) {
+            List<String> listSkill = currentJob.getSkills()
                                         .stream()
                                         .map(x -> x.getName())
                                         .collect(Collectors.toList());

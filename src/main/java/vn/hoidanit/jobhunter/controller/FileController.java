@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -19,6 +23,9 @@ import vn.hoidanit.jobhunter.domain.response.file.ResUploadFileDTO;
 import vn.hoidanit.jobhunter.service.FileService;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.FileUploadException;
+
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 @RestController
@@ -60,9 +67,32 @@ public class FileController {
 
         ResUploadFileDTO res = new ResUploadFileDTO(uploadFile , Instant.now()) ;
 
-
-
         return ResponseEntity.ok(res);
     }
+
+    @GetMapping("/files")
+    @APIMessage("Download a file")
+    public ResponseEntity<Resource> download(
+            @RequestParam(name = "fileName" , required = false) String fileName,
+            @RequestParam("folder") String folder) throws URISyntaxException, IOException, FileUploadException {
+
+        if ( fileName == null || folder == null ) {
+            throw new FileUploadException("Thiếu file hoặc folder") ;
+        }
+
+        // check file exist
+        long fileLength = this.fileService.getFileLength(fileName , folder) ;
+        if ( fileLength == 0) {
+            throw new FileUploadException("File " + fileName + " không tìm thấy") ;
+        }
+        InputStreamResource resource = this.fileService.getResource(fileName , folder) ;
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentLength(fileLength)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+    
 
 }
