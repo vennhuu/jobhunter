@@ -31,7 +31,7 @@ public class SecurityConfiguration {
 
     @Value("${venn.jwt.base64-secret}")
     private String jwtKey;
-    
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -46,12 +46,12 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/" , "/api/v1/auth/login" , "/api/v1/auth/refresh"  ).permitAll()
+                    .requestMatchers("/" , "/api/v1/auth/login" , "/api/v1/auth/refresh" , "/storage/**"  ).permitAll()
                     .anyRequest().authenticated())
             .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
             .authenticationEntryPoint(customAuthenticationEntryPoint)
             )
-            
+
             // .exceptionHandling(
             //     exceptions -> exceptions
             //         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
