@@ -12,6 +12,8 @@ public class ResCreateUserDTO {
     private int age ;
     private Instant createdAt ;
     private CompanyUser company ;
+    private RoleUser role ;
+
 
     public long getId() {
         return id;
@@ -98,6 +100,37 @@ public class ResCreateUserDTO {
         }
 
     }
+
+    public static class RoleUser {
+        private long id ;
+        private String name ;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+    }
+
+    public RoleUser getRole() {
+        return role;
+    }
+
+    public void setRole(RoleUser role) {
+        this.role = role;
+    }
+    
     
     
 }

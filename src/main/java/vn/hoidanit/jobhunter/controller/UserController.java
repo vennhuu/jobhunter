@@ -19,12 +19,14 @@ import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 import vn.hoidanit.jobhunter.domain.Company;
+import vn.hoidanit.jobhunter.domain.Role;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import vn.hoidanit.jobhunter.service.CompanyService;
+import vn.hoidanit.jobhunter.service.RoleService;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
@@ -37,11 +39,13 @@ public class UserController {
     private final UserService userService ; 
     private final PasswordEncoder passwordEncoder ; 
     private final CompanyService companyService ;
+    private final RoleService roleService ;
     
-    public UserController(UserService userService , PasswordEncoder passwordEncoder , CompanyService companyService  ) {
+    public UserController(UserService userService , PasswordEncoder passwordEncoder , CompanyService companyService , RoleService roleService  ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder ;
         this.companyService = companyService ;
+        this.roleService = roleService ;
     }
 
     @PostMapping("/users")
@@ -63,7 +67,12 @@ public class UserController {
                 postManUser.setCompany(company);
             }
         }
-        String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ; 
+
+        if ( postManUser.getRole() != null ) {
+            Role r = this.roleService.getRoleById(postManUser.getRole().getId()) ;
+            postManUser.setRole(r != null ? r : null ) ;
+        }
+        String hashPassWord = this.passwordEncoder.encode(postManUser.getPassword()) ;
         postManUser.setPassword(hashPassWord);
         User user = this.userService.saveUser(postManUser);
         ResCreateUserDTO createUserDTO = this.userService.handleCreateUserDTO(user) ;
@@ -121,12 +130,24 @@ public class UserController {
             }
         }
 
+        if ( updateUser.getRole() != null ) {
+            long id = updateUser.getRole().getId() ;
+            if ( !this.roleService.existsById(id) ) {
+                updateUser.setRole(null);
+            }
+            else {
+                Role role = this.roleService.getRoleById(id);
+                updateUser.setRole(role);
+            }
+        }
+
         if ( updateUser!= null) {
             updateUser.setName(postManUser.getName());
             updateUser.setGender(postManUser.getGender());
             updateUser.setAge(postManUser.getAge());
             updateUser.setAddress(postManUser.getAddress());
             updateUser.setCompany(postManUser.getCompany());
+            updateUser.setRole(postManUser.getRole());
             this.userService.saveUser(updateUser) ;
         }
         ResUpdateUserDTO updateUserDTO = this.userService.handleUpdateUserDTO(updateUser) ;

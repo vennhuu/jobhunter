@@ -15,8 +15,32 @@ public class ResUserDTO {
     private Instant createdAt ;
 
     private CompanyUser company ; 
+    private RoleUser role ;
+
+    
 
     public static class CompanyUser {
+        private long id ;
+        private String name ;
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class RoleUser {
         private long id ;
         private String name ;
 
@@ -107,6 +131,14 @@ public class ResUserDTO {
 
     public void setCompany(CompanyUser company) {
         this.company = company;
+    }
+
+    public RoleUser getRole() {
+        return role;
+    }
+
+    public void setRole(RoleUser role) {
+        this.role = role;
     }
 
     

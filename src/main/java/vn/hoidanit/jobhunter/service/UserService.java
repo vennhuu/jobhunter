@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.Company;
+import vn.hoidanit.jobhunter.domain.Role;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
@@ -22,10 +23,12 @@ public class UserService {
 
     private final UserRepository userRepository ; 
     private final CompanyService companyService ; 
+    private final RoleService roleService ;
     
-    public UserService(UserRepository userRepository , CompanyService companyService) {
+    public UserService(UserRepository userRepository , CompanyService companyService , RoleService roleService ) {
         this.userRepository = userRepository;
         this.companyService = companyService ;
+        this.roleService = roleService ;
     }
 
     public User saveUser (User user) {
@@ -59,8 +62,6 @@ public class UserService {
                                     .stream()
                                     .map(user -> this.fetchUserByIdDTO(user))
                                     .collect(Collectors.toList());
-        
-
 
         rs.setMeta(mt);
         rs.setResult(listDTO);
@@ -94,6 +95,18 @@ public class UserService {
         else {
             createUserDTO.setCompany(null);
         }
+
+        if ( user.getRole() != null ) {
+            ResCreateUserDTO.RoleUser role = new ResCreateUserDTO.RoleUser() ;
+            long id = user.getRole().getId() ;
+            Role r = this.roleService.getRoleById(id) ;
+            role.setId(id);
+            role.setName(r.getName());
+            createUserDTO.setRole(role) ;
+        }
+        else {
+            createUserDTO.setRole(null);
+        }
         return createUserDTO ;
     }
 
@@ -110,12 +123,26 @@ public class UserService {
         updateUserDTO.setAge(user.getAge());
         updateUserDTO.setUpdatedAt(user.getUpdatedAt());
         if( user.getCompany() != null ) {
-            ResUpdateUserDTO.CompanyUser companyUser = new ResUpdateUserDTO.CompanyUser() ;
-            long id = user.getCompany().getId() ;
-            Company com = this.companyService.getCompanyById(id) ;
-            companyUser.setId(id);
-            companyUser.setName(com.getName());
-            updateUserDTO.setCompany(companyUser);
+            if ( !this.companyService.existById(user.getId())) {
+                updateUserDTO.setCompany(null);
+            }
+            else {
+                ResUpdateUserDTO.CompanyUser companyUser = new ResUpdateUserDTO.CompanyUser() ;
+                long id = user.getCompany().getId() ;
+                Company com = this.companyService.getCompanyById(id) ;
+                companyUser.setId(id);
+                companyUser.setName(com.getName());
+                updateUserDTO.setCompany(companyUser);
+            }
+            
+        }
+        if( user.getRole() != null ) {
+            ResUpdateUserDTO.RoleUser roleUser = new ResUpdateUserDTO.RoleUser() ;
+            long id = user.getRole().getId() ;
+            Role r = this.roleService.getRoleById(id) ;
+            roleUser.setId(id);
+            roleUser.setName(r.getName());
+            updateUserDTO.setRole(roleUser);
         }
         return updateUserDTO ;
     }
@@ -137,6 +164,15 @@ public class UserService {
             fetchUserByIdDTO.setCompany(com);
         } else {
             fetchUserByIdDTO.setCompany(null);
+        }
+
+        if (user.getRole() != null) {
+            ResUserDTO.RoleUser r = new ResUserDTO.RoleUser();
+            r.setId(user.getRole().getId());
+            r.setName(user.getRole().getName());
+            fetchUserByIdDTO.setRole(r);
+        } else {
+            fetchUserByIdDTO.setRole(null);
         }
         return fetchUserByIdDTO ;
     }
