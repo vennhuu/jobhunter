@@ -2,12 +2,15 @@ package vn.hoidanit.jobhunter.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +27,7 @@ import vn.hoidanit.jobhunter.util.SecurityUtil;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
 import vn.hoidanit.jobhunter.util.annotation.APIMessage;
 import vn.hoidanit.jobhunter.util.error.InvalidException;
 
@@ -34,14 +38,16 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
+    private final PasswordEncoder passwordEncoder ; 
     @Value("${venn.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
     public AuthController(UserService userService, AuthenticationManagerBuilder authenticationManagerBuilder,
-            SecurityUtil securityUtil) {
+            SecurityUtil securityUtil , PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
+        this.passwordEncoder = passwordEncoder ;
     }
 
     @PostMapping("/auth/login")
@@ -170,5 +176,16 @@ public class AuthController {
                 .build();
     }
 
+    @PostMapping("/auth/register")
+    public ResponseEntity<ResCreateUserDTO> handleLogout(@Valid @RequestBody User userPostMan) throws InvalidException {
+        if ( this.userService.existByEmail(userPostMan.getEmail())) {
+            throw new InvalidException ("Email đã tồn tại") ;
+        }
+        String hashPassword = this.passwordEncoder.encode(userPostMan.getPassword()) ;
+        userPostMan.setPassword(hashPassword);
 
+        User user = this.userService.saveUser(userPostMan) ;
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUserDTO(user));
+    }
+    
 }

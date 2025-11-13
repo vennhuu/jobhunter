@@ -53,7 +53,8 @@ public class PermissionController {
     public ResponseEntity<Permission> handleUpdatePermission (@RequestBody Permission permissionPostMan)throws InvalidException {
         Permission updPermission = this.permissionService.getPermissionById(permissionPostMan.getId()) ;
         if ( !this.permissionService.existsById(permissionPostMan.getId()) ) {
-            throw new InvalidException("Id không tồn tại") ;
+            if ( this.permissionService.isSameName(updPermission))
+            throw new InvalidException("Permission đã tồn tại") ;
         }
         if ( this.permissionService.existsByApiPathAndMethodAndModule(
             permissionPostMan.getApiPath(),
@@ -82,4 +83,5 @@ public class PermissionController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
     
+
 }
